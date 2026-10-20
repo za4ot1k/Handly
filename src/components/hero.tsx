@@ -1,0 +1,11 @@
+'use client';
+import Image from 'next/image';
+import { motion, useReducedMotion } from 'framer-motion';
+import { ArrowUp, Check, Mic, CalendarDays } from 'lucide-react';
+import { uk } from '@/content/uk';
+import { site } from '@/config/site';
+import { CTA, MoneyCard } from './ui';
+export function Hero() {
+  const reduce = useReducedMotion();
+  return <section className="hero container"><div className="hero-copy"><p className="eyebrow">{uk.eyebrow}</p><h1>{uk.hero[0]}<br/>{uk.hero[1]}<br/><em>{uk.hero[2]}</em><svg viewBox="0 0 300 14" aria-hidden="true"><path d="M3 10 Q145 -5 295 7"/></svg></h1><p className="hero-intro">{uk.intro}</p><div className="hero-actions"><CTA source="hero">{uk.join}</CTA><CTA secondary href="#demo" source="hero_demo">{uk.demo}</CTA></div><p className="hero-note">{uk.heroNote}</p><div className="hero-bottom"><p>{site.tagline}</p><span className="hand-arrow" aria-hidden="true">↗</span></div></div><div className="hero-art"><div className="orbit orbit-one"/><div className="orbit orbit-two"/><div className="float-label">{uk.ribbon[0]}</div><motion.div className="chat-preview" initial={false} animate={reduce ? {} : { y: [5, 0] }} transition={{duration: .8}}><div className="chat-header"><span className="assistant-avatar"><Image src="/logo.svg" width={24} height={25} alt=""/></span><div><b>{site.name}</b><span><i/>{uk.status}</span></div><span className="header-dots" aria-hidden="true">•••</span></div><div className="preview-body"><motion.div className="bubble user" initial={false} animate={reduce ? {} : {opacity: [0, 1]}} transition={{delay: .2}}>{uk.heroQuestion}<span className="message-check">✓✓</span></motion.div><motion.div initial={false} animate={reduce ? {} : {opacity: [0, 1]}} transition={{delay: .5}}><div className="bubble assistant">{uk.heroAnswer}</div><MoneyCard/></motion.div><div className="bubble assistant follow">{uk.heroFollow}</div></div><a className="preview-input" href="#demo"><span>{uk.inputPlaceholder}</span><Mic size={17}/><span className="send-icon"><ArrowUp size={17}/></span></a></motion.div><div className="floating-booking"><span className="booking-icon"><CalendarDays size={23}/></span><div><b>{uk.bookingTitle}</b><span>{uk.bookingTime}</span></div><span className="check-circle"><Check size={15}/></span></div></div></section>;
+}
