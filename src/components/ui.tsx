@@ -4,9 +4,9 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { motion, useReducedMotion } from 'framer-motion';
 import { ArrowUpRight } from 'lucide-react';
-import { site } from '@/config/site';
+import { site, assetPath } from '@/config/site';
 import { track } from '@/lib/analytics';
-export function Logo() { return <Link className="logo" href="/" aria-label={site.name}><Image className="brand-mark" src="/logo.svg" width={38} height={40} alt="" priority/>{site.name}<span className="logo-dot">.</span></Link>; }
+export function Logo() { return <Link className="logo" href="/" aria-label={site.name}><Image className="brand-mark" src={assetPath('/logo.svg')} width={38} height={40} alt="" priority/>{site.name}<span className="logo-dot">.</span></Link>; }
 export function CTA({ children, href = '#waitlist', secondary = false, source = 'page' }: {children: React.ReactNode; href?: string; secondary?: boolean; source?: string}) {
   return <a className={`button ${secondary ? 'button-secondary' : ''}`} href={href} onClick={() => track('cta_click', { source })}>{children}<ArrowUpRight size={17}/></a>;
 }

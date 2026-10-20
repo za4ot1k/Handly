@@ -1,8 +1,8 @@
-# Pomichnyk
+# handly
 
-A Ukrainian-first marketing website and scripted product demo built with Next.js App Router, strict TypeScript, Tailwind CSS 4, Framer Motion, and Lucide. All illustrations use CSS or inline SVG; no external image hosts or paid APIs are used.
+Ukrainian landing page built with Next.js App Router, TypeScript, Tailwind CSS, Framer Motion, and Lucide. Exports plain HTML, CSS, JS, and local assets for GitHub Pages. No Node.js server is needed in production.
 
-## Run locally
+## Local development
 
 Use Node.js 22 or later:
 
@@ -11,7 +11,19 @@ npm install
 npm run dev
 ```
 
-Open http://localhost:3000. For a production check:
+## GitHub Pages
+
+The repository remote is `https://github.com/za4ot1k/Handly`.
+
+1. In GitHub, open **Settings > Pages > Build and deployment > Source** and select **GitHub Actions**.
+2. Push these changes to `main` or `master`, or manually run **Deploy handly to GitHub Pages** from Actions.
+3. The workflow installs dependencies, runs lint, builds `out/`, and deploys only that directory.
+
+The expected default address is `https://za4ot1k.github.io/Handly/`. The workflow obtains the real URL and base path from `actions/configure-pages`, so project paths, user sites, and configured custom domains are supported. Do not enable automatic Next.js configuration injection: the repository already configures static export.
+
+The workflow needs Pages enabled and the `github-pages` environment to allow deployment from the selected branch. This code change does not itself push commits or change repository settings.
+
+## Test the exported site
 
 ```sh
 npm run lint
@@ -19,40 +31,38 @@ npm run build
 npm start
 ```
 
-Google fonts (Manrope and Nunito Sans, including Cyrillic) are downloaded by `next/font` during the build and self-hosted afterward. The first build requires network access.
+`npm start` serves `out/` on localhost:3000 and automatically detects its compiled base path. For a Pages-like project build in PowerShell:
 
-## Configuration and content
+```powershell
+$env:NEXT_PUBLIC_BASE_PATH='/Handly'
+$env:NEXT_PUBLIC_SITE_URL='https://za4ot1k.github.io/Handly'
+npm run build
+npm start
+```
 
-- `src/config/site.ts`: product name, tagline, description, contact email, and canonical URL. Replace the placeholder contact email before launch.
-- `src/content/uk.ts`: Ukrainian interface copy, FAQ, scenarios, and pricing. It references the configured product name. Add another dictionary and locale routing for a second language.
-- `src/app/globals.css`: palette, layout, responsive rules, and system dark mode. Reduced motion is supported.
-- `src/components/demo.tsx`: four local keyword-based flows and fallback. Chat messages stay in the browser; input is never sent to an API. The calendar card is a fixed example, not a date parser. Voice is a planned feature, not an active recorder.
-- `src/lib/analytics.ts`: development console event abstraction. No email or prompt text is logged. Connect a consent-aware provider here.
+Open `http://localhost:3000/Handly/`. Clear these environment variables before returning to root-path development. Base paths are compiled into the export; rebuild when changing the deployment URL. Fonts are downloaded during build and self-hosted afterward. Internet access is needed for the first build.
 
-Annual pricing charges ten monthly payments for twelve months and displays the equivalent monthly price. Prices are preliminary USD amounts; Business is a starting price. No payment is collected.
+## Configuration
 
-## Waitlist integration
+- `src/config/site.ts`: product identity, contact email, public asset helper, canonical URL, optional waitlist endpoint.
+- `src/content/uk.ts`: copy, pricing, FAQ, and demo content.
+- `src/app/handly.css`: permanent dark visual theme.
+- `public/logo.svg`: supplied handly logo. Asset paths include the deployment prefix.
+- `src/components/demo.tsx`: browser-only scripted demo. It does not create real appointments or send messages.
+- `src/lib/analytics.ts`: development-only event logs without email or prompt contents.
 
-`POST /api/waitlist` accepts JSON `{ "email": "name@example.com", "business": "salon", "website": "" }`. The optional business field accepts `salon`, `tutor`, `workshop`, `consultant`, or `other`; `website` is a honeypot.
+`next/link` handles the configured base path for internal navigation. `trailingSlash` exports `/privacy/index.html` and `/terms/index.html` for direct visits and refreshes. Images are unoptimized static files; no `/_next/image` endpoint is needed. `public/.nojekyll` prevents underscore-prefixed assets from being filtered during manual branch-based hosting.
 
-The handler validates on the server, bounds request size, rejects cross-origin browser submissions, deduplicates normalized emails, and allows five attempts per IP per fifteen minutes. The form also validates on the client and displays pending, success, and failure states.
+## Waitlist on static hosting
 
-**Demo storage is intentionally process-local and temporary.** Entries disappear on restart and are not shared between instances. The website explicitly explains this. Rate limiting is also process-local; only trust IP headers set by your deployment proxy. This is not a production signup database.
+GitHub Pages cannot run the former POST API. Its sample implementation is retained in `examples/waitlist-route.ts` for a separately hosted backend; it is not deployed by this project.
 
-Before a real launch:
+Without `NEXT_PUBLIC_WAITLIST_ENDPOINT`, the form shows an unavailable message and disables submission. It does not claim to save emails. To enable real signups, implement an HTTPS endpoint and set the repository Actions variable `NEXT_PUBLIC_WAITLIST_ENDPOINT`, then rebuild.
 
-1. Replace the `entries` map with a database or email-provider adapter with a unique email constraint.
-2. Move rate limiting to Redis or an equivalent shared store; configure trusted proxy handling.
-3. Keep provider credentials in server-only environment variables. Add double opt-in, unsubscribe, retention, and deletion workflows.
-4. Replace the privacy/terms placeholders with reviewed policies and configure the real contact address.
-5. Retain generic responses so duplicate addresses are not disclosed. Do not add a public route exposing signups.
+Expected request: POST JSON `{ "email": "name@example.com", "business": "salon", "website": "" }`. The business field is optional; supported values are `salon`, `tutor`, `workshop`, `consultant`, and `other`. Return a successful 2xx response only after accepting the signup, or 429 for rate limits. The backend must allow CORS for the Pages origin and handle OPTIONS, validate input, enforce rate limiting, check the honeypot, deduplicate emails, and persist signups. Do not put secret API keys in NEXT_PUBLIC variables.
 
-## Deploy to Vercel
+Before enabling collection, replace the placeholder email and privacy policy, document the actual provider and retention policy, and implement unsubscribe/deletion procedures. The example in-memory backend is not production storage.
 
-Import the repository as a Next.js project, select Node.js 22+, and set `NEXT_PUBLIC_SITE_URL` to the final HTTPS origin (without a trailing slash). Run the default `npm run build`. The sitemap, robots file, and Open Graph metadata use that URL. Preview deployments should be configured not to index. This task creates a local project and does not publish it.
+## Deployment limits
 
-## Verification and launch checks
-
-Run build and lint before deploying. Check the four chat prompts, unknown prompts, reset, annual/monthly prices, keyboard tabs, accordion, mobile menu, and waitlist success/validation/rate-limit states. Test system dark mode and reduced motion. Lighthouse 95+ is a target, not a claimed score; run an audit against a production deployment on a representative mobile device before launch.
-
-The application is a prelaunch prototype: messenger/calendar/bank integrations, voice capture, and tax-ready export are planned capabilities. No invented customers, testimonials, or business performance claims are used.
+The UI, pricing toggle, tabs, chat demo, FAQ, and static legal pages run entirely in the browser. Banks, messaging, voice, and calendar integrations remain planned features. The build output is `out/`; uploading the source tree itself to Pages will not build the application.
